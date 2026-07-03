@@ -1,75 +1,161 @@
 # Centaurus Telegram UserBot
 
-Telegram userbot built as a modular runtime system.
+A lightweight Telegram userbot built on Python (Telethon-based), designed as a modular runtime system.
 
----
-
-## Overview
-
-Centaurus is a Telegram userbot designed to work as a flexible modular core.
-
-It is built around third-party modules created by developers from the Hikka ecosystem, meaning that modules originally designed for Hikka can also be used here with minimal or no changes.
-
-In short:
-Centaurus is not a bot with features — it is a core that runs features.
-
----
-
-## Compatibility
-
-Centaurus supports external module-based architecture inspired by Hikka.
-
-That means:
-- community modules are supported
-- external plugins can be loaded dynamically
-- the system is designed to stay lightweight and extensible
-
-If it runs in Hikka, it is likely to run in Centaurus as well.
-
----
-
-## Banner
+This ain't a “feature bot” — it's a core that boots a Telegram client and lets modules do literally everything else.
 
 ![Centaurus Banner](banner.png)
 
 ---
 
-## Architecture
+## What this is
 
-- core system handles execution and lifecycle
-- modules handle all logic and features
-- plugins are loaded dynamically at runtime
-- minimal restrictions on module design
+Centaurus is basically a small userbot framework.
 
-Centaurus is intentionally built to stay open and extendable.
+It:
 
----
+- spins up a Telegram client via Telethon
+- handles auth (phone / code / 2FA if needed)
+- loads modular plugins ("cogs")
+- lets you extend everything without touching core
 
-## Concept
-
-Centaurus follows a simple idea:
-
-keep the core quiet  
-let the modules do the talking
+Think of it like a plugin runtime for Telegram automation.
 
 ---
 
-## Status
+## How it works
 
-Centaurus is actively evolving.
+### Boot process
 
-Expect changes, improvements, and experimental features over time.
+Entry point starts in `main.py`.
 
-Nothing here is final — everything is in motion.
+It kicks off async runtime from `bot.py`, and the whole system comes alive.
 
 ---
 
-## Notes
+### Telegram client
 
-This project is designed for developers who like freedom, modularity, and control over their runtime environment.
+Handled in `bot.py` using Telethon.
+
+Flow:
+
+- connect to Telegram
+- login via phone/code/password
+- restore session if exists
+- keep persistent connection alive
+
+Once auth is done → modules get loaded.
+
+---
+
+### Config system
+
+`config.py` pulls settings from `cfg.json`:
+
+- API ID
+- API Hash
+- session name
+
+Simple flat config, no overengineering.
+
+---
+
+### Module loader
+
+`loader.py` scans `/cogs` folder and auto-loads every `.py` file as a module.
+
+Each module must expose a `setup()` function.
+
+That’s it — drop file in folder, it gets picked up.
+
+---
+
+### Logging
+
+`log.py` is a lightweight colored logger.
+
+Nothing fancy, just clean runtime visibility for startup + errors.
+
+---
+
+## Remote module (the spicy part)
+
+`remote.py` turns the bot into a dynamic module manager.
+
+It allows controlling modules directly from Telegram.
+
+### Commands
+
+- `.load` → load module from URL
+- `.list` → show loaded modules
+- `.unload` → remove module
+
+---
+
+### How `.load` works internally
+
+When triggered, it:
+
+- downloads Python source from a URL
+- strips comments / cleanup
+- saves it into modules folder
+- installs dependencies via pip (if needed)
+- imports module dynamically
+- runs `setup()` if exists
+
+So yeah — it’s basically runtime plugin injection.
+
+---
+
+## Architecture overview
+
+The project is split clean:
+
+- `main.py` → entry point
+- `bot.py` → Telegram client + runtime
+- `config.py` → config loader
+- `loader.py` → module system
+- `log.py` → logger
+- `remote.py` → dynamic module manager
+- `/cogs` → extensions
+
+Nothing bloated. Each file has one job.
+
+---
+
+## What’s good
+
+- clean separation of logic
+- lightweight core
+- modular design
+- easy to extend
+- no framework dependency hell
+- dynamic plugin loading (hot reload style)
+
+---
+
+## Tradeoffs
+
+Not everything is perfect:
+
+- dynamic loading can get unpredictable
+- broad exception handling in some places
+- no automated tests
+- config is external (cfg.json required)
+
+---
+
+## TL;DR
+
+It’s a Telegram userbot core.
+
+- Telethon client
+- modular plugin system
+- hot-loadable modules via Telegram
+- lightweight and extendable runtime
+
+Drop modules in → bot runs them → done.
 
 ---
 
 ## Closing
-
-*still updating. still growing. still doing its thing — lowkey, but always online.*
