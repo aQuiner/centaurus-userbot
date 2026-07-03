@@ -1,3 +1,5 @@
+# require: test, test
+
 from telethon import TelegramClient, events
 
 async def setup(client: TelegramClient) -> None:
